@@ -1,0 +1,111 @@
+/*
+
+	Filename:	responsive.css
+	Purpose:	Splices a "sprite" image depending on the width of the
+				browser using the @media Media Query function
+	Author:		EVGENI C. DOBRANOV
+	Date:		2/14/2016
+
+*/
+
+/* The image used (software.png) consists of 10 partitions */
+
+/* Top row, first image (how the customer explained it) */
+@media screen
+	and (min-width: 1201px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png) 0px 0px;
+		}
+}
+
+/* Top row, second image (How the Project Leader understood it) */
+@media screen
+	and (min-width: 1101px) and (max-width: 1200px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png) -128px 0px;
+		}
+}
+
+/* Top row, third image (How the Analyst designed it) */
+@media screen
+	and (min-width: 1001px) and (max-width: 1100px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png)-256px 0px;
+		}
+}
+
+/* Top row, fourth image (how the Programmer wrote it) */
+@media screen
+	and (min-width: 901px) and (max-width: 1000px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png)-384px 0px;
+		}
+}
+
+/* Top row, fifth image (How the Business Consultant described it) */
+@media screen
+	and (min-width: 801px) and (max-width: 900px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png)-512px 0px;
+		}
+}
+
+/* Bottom row, first image (How the project was documented) */
+@media screen
+	and (min-width: 701px) and (max-width: 800px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png) 0px 240px;
+		}
+}
+
+/* Bottom row, second image (What operations installed) */
+@media screen
+	and (min-width: 601px) and (max-width: 700px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png) -128px 240px;
+		}
+}
+
+/* Bottom row, third image (How the customer was billed) */
+@media screen
+	and (min-width: 501px) and (max-width: 600px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png) -256px 240px;
+		}
+}
+
+/* Bottom row, fourth image (How it was supported) */
+@media screen
+	and (min-width: 401px) and (max-width: 500px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png) -384px 240px;
+		}
+}
+
+/* Bottom row, fifth image (What the customer really needed) */
+@media screen
+	and (max-width: 400px) {
+		.software {
+			width:128px;
+			height:240px;
+			background:url(images/software.png) -512px 240px;
+		}
+}
