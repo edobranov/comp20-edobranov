@@ -1,0 +1,36 @@
+/*
+
+	Filename:	style.css
+	Purpose:	Styling for the "My Old Kentucky Home" page
+	Author:		EVGENI C. DOBRANOV
+	Date:		2/29/2016
+
+*/
+
+/* Background image for the whole page (<body> tag) */
+body {
+	background-image: url('images/background.jpg');
+}
+
+/* Styling for the main title */
+h1 {
+	text-align: center;
+	font-family: Helvetica;
+	margin-left: 15%;
+	margin-right: 15%;
+}
+
+/* Center the video */
+#music_video {
+	display: block;
+	margin: 0 auto;
+}
+
+/* Centering, size, font, margin, etc. for the lyrics */
+#lyrics {
+	text-align: center;
+	font-family: Helvetica;
+	font-size: 25px;
+	margin-left: 15%;
+	margin-right: 15%;
+}

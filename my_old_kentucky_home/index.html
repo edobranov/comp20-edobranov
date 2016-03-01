@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<!--
+
+	Filename:	index.html
+	Purpose:	Content for the "My Old Kentucky Home" page
+	Author:		EVGENI C. DOBRANOV
+	Date:		2/29/2016
+
+-->
+
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title>My Old Kentucky Home</title>
+		<link rel="stylesheet" href="style.css" type="text/css" />
+	</head>
+
+	<body>
+
+		<h1 id="title">My Old Kentucky Home</h1>
+
+		<video src="https://www.cs.tufts.edu/comp/20/my_old_kentucky_home.mp4"
+			id="music_video" controls></video>
+		<div id="lyrics"></div>
+
+		<script>
+		
+			// Adds an event listener and calls myFunction() every time there's a time update
+			document.getElementById("music_video").addEventListener("timeupdate", myFunction);
+			
+			// The function that is called
+			function myFunction()
+			{
+				// Store the current time at which the function is called from
+				// the video element (for compact and cleaner notation)
+				t = document.getElementById("music_video").currentTime;
+				
+				// Compare up to what point the video has reached, and store
+				// the correct lyric and image strings in two variables
+				if (t < 8.5) {
+					str = "";
+					pic = "";
+				}
+				else if (t < 15) {
+					str = "The sun shines bright in My Old Kentucky Home,<br><br>";
+					pic = "<img src='images/one.jpg' alt='sun' />";
+				}
+				else if (t < 21.5) {
+					str = "'Tis summer, the people are gay;<br><br>";
+					pic = "<img src='images/two.jpg' alt='ronswanson' />";
+				}
+				else if (t < 28.5) {
+					str = "The corn-top's ripe and the meadow's in the bloom<br><br>";
+					pic = "<img src='images/three.jpg' alt='corn' />";
+				}
+				else if (t < 36) {
+					str = "While the birds make music all the day.<br><br>";
+					pic = "<img src='images/four.jpg' alt='bird' />";
+				}
+				else if (t < 42.2) {
+					str = "The young folks roll on the little cabin floor,<br><br>";
+					pic = "<img src='images/five.jpg' alt='kid' />";
+				}
+				else if (t < 49) {
+					str = "All merry, all happy and bright;<br><br>";
+					pic = "<img src='images/six.jpg' alt='grumpycat' />";
+				}
+				else if (t < 55.8) {
+					str = "By 'n' by hard times comes a knocking at the door,<br><br>";
+					pic = "<img src='images/seven.jpg' alt='johnny' />";
+				}
+				else if (t < 63.5) {
+					str = "Then My Old Kentucky Home, good night!<br><br>";
+					pic = "<img src='images/eight.jpg' alt='kfc' />";
+				}
+				
+				// And here comes the chorus!
+				else if (t < 70.2) {
+					str = "Weep no more my lady<br><br>";
+					pic = "<img src='images/nine.jpg' alt='crying' />";
+				}
+				else if (t < 76) {
+					str = "Oh weep no more today;<br><br>";
+					pic = "<img src='images/nine.jpg' alt='crying' />";
+				}
+				else if (t < 80) {
+					str = "We will sing one song<br><br>";
+					pic = "<img src='images/ten.jpg' alt='lisa' />";
+				}
+				else if (t < 84) {
+					str = "For My Old Kentucky Home<br><br>";
+					pic = "<img src='images/eleven.jpg' alt='kentucky' />";
+				}
+				else if (t < 92) {
+					str = "For My Old Kentucky Home, far away<br><br>";
+					pic = "<img src='images/twelve.jpg' alt='farm' />";
+				}
+				
+				else {
+					str = "Don't forget to like, favorite and subscribe!<br><br>";
+					pic = "<img src='images/twelve.jpg' alt='farm' />";
+				}
+				
+				// Add to the "lyrics" part of the document using ".innerHTML"
+				document.getElementById("lyrics").innerHTML = "<p>" + str + pic + "</p>";
+			}
+			
+		</script>
+		
+	</body>
+	
+</html>	
