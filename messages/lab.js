@@ -23,6 +23,7 @@ function parse()
 			// Store the raw data
 			data = JSON.parse(request.responseText);
 			
+			// Concatenate results for all object in the raw data
 			for (i = 0; i < data.length; i++) {
 				
 				htmlresult +=
@@ -39,8 +40,8 @@ function parse()
 					"</p>";
 			}
 			
+			// Push to the HTML page via .innerHTML
 			document.getElementById("messages").innerHTML = htmlresult;
-			console.log(data);
 		
 		}
 	};

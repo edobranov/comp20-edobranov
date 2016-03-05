@@ -5,7 +5,15 @@
 	Date:		3/5/2016
 */
 
-/* Styling for the messages */
+/* General styling for the heading */
+h1 {
+	font-family: Courier New;
+	font-weight: bold;
+	letter-spacing: 3px;
+	color: #9999ff
+}
+
+/* General styling for the messages */
 #boxed {
 	font-family: Helvetica;
 	border-radius: 14px;
@@ -13,8 +21,10 @@
 	padding: 3px;
 	font-weight: bold;
 	font-size: 24px;
+	line-height: 200%
 }
 
+/* Specific for the smaller part at the end (the username) */
 #small {
 	font-size: 16px;
 }
