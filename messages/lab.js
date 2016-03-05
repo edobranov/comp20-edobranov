@@ -17,11 +17,29 @@ function parse()
 		
 		if (request.readyState == 4) {
 		
+			// Will be appending to this so it can be printed at once
+			htmlresult = "";
+		
 			// Store the raw data
 			data = JSON.parse(request.responseText);
+			
+			for (i = 0; i < data.length; i++) {
 				
-			document.getElementById("messages").innerHTML = data;
-
+				htmlresult +=
+				
+					"<p>" +
+						"<span id='boxed'>" +
+							data[i]["id"] + ") " +
+							data[i]["content"] +
+							
+							"<span id='small'> " +
+								data[i]["username"] +
+							"</span>" +
+						"</span" +
+					"</p>";
+			}
+			
+			document.getElementById("messages").innerHTML = htmlresult;
 			console.log(data);
 		
 		}
