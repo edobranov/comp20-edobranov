@@ -3,7 +3,7 @@
 <!--
 
 	Filename:	index.html
-	Purpose:	
+	Purpose:	Send data via XMLHttpRequest, and render the data on a map
 	Author:		EVGENI C. DOBRANOV
 	Date:		3/12/2016
 
@@ -39,13 +39,10 @@
 					{
 						myLat = position.coords.latitude;	// Store latitude
 						myLon = position.coords.longitude;	// Store longitude
-						console.log(myLat);
-						console.log(myLon);
 						
 						// *************************************************
 						// * (2) We can now set up Google Maps in the HTML *
 						// *************************************************
-						
 						
 						// Creates the map object
 						var myMap = new google.maps.Map(document.getElementById('map'), {
@@ -56,7 +53,7 @@
 						var myCoords = new google.maps.LatLng(myLat, myLon);
 						myMap.setCenter(myCoords);
 						
-						// Creates the marker
+						// Creates the initial marker of the user's location
 						var myMarker = new google.maps.Marker({
 							position: myCoords,
 							map: myMap,
@@ -65,16 +62,17 @@
 							title: "BENJAMIN_SWEET"
 						});
 						
+						// Render the info window for the marker with the title
 						var myInfoWindow = new google.maps.InfoWindow({
 							content: "<h2>BENJAMIN_SWEET</h2>"
 						});
 						
-						myMarker.setMap(myMap);
+						myMarker.setMap(myMap);		// Place the marker on the map
 						
+						// Simple event listener for the user's info window
 						myMarker.addListener('click', function() {
 							myInfoWindow.open(myMap, myMarker);
 						});
-						
 						
 						// ****************************************************************
 						// * (3) Now we focus on send the request to the herokuapp server *
@@ -100,8 +98,10 @@
 							if (request.readyState == 4 && request.status == 200)
 							{
 								data = JSON.parse(request.responseText); // Parse the JSON data
-								console.log(data);
 								
+								// **************************************************************
+								// * (4) Now we loop through the people and add them to the map *
+								// **************************************************************
 								for (i = 0; i < data["people"].length; i++)
 								{
 									// Store all the temporary user info
@@ -122,13 +122,13 @@
 									// Set the marker on the map
 									tempMarker.setMap(myMap);
 									
-									// Calculate the miles away from you
-									
+									// Calculate the miles away from the user
+									// Formula found at this URL:
+									// http://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
 									Number.prototype.toRad = function() {
 									   return this * Math.PI / 180;
 									}
-									
-									var R = 6371; // km 
+									var R = 6371;
 									var x1 = tempLat-myLat;
 									var dLat = x1.toRad();
 									var x2 = tempLon-myLon;
@@ -139,9 +139,6 @@
 									var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 									var d = R * c; 
 									var tempDistance = d * 0.621371;
-
-									console.log(tempLog);
-									console.log(tempDistance);
 									
 									// Create new info window with the login and miles away
 									var tempInfoWindow = new google.maps.InfoWindow({
@@ -163,6 +160,9 @@
 									
 								}
 								
+								// *****************************************************************
+								// * (5) Now we loop through the landmarks and add them to the map *
+								// *****************************************************************
 								for (i = 0; i < data["landmarks"].length; i++)
 								{
 									// Store all the temporary landmark info
@@ -176,7 +176,10 @@
 									   return this * Math.PI / 180;
 									}
 									
-									var R = 6371; // km 
+									// Calculate the miles away from the user
+									// Formula found at this URL:
+									// http://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
+									var R = 6371;
 									var x1 = l_lat-myLat;
 									var dLat = x1.toRad();
 									var x2 = l_lon-myLon;
@@ -191,10 +194,8 @@
 									// If the landmark is under a mile away...
 									if (l_distance < 1)
 									{
-										
 										// Create the new coords for the landmark
 										var l_coords = new google.maps.LatLng(l_lat, l_lon);
-										
 										
 										// Creates the marker with icon and title
 										var l_marker = new google.maps.Marker({
@@ -207,7 +208,7 @@
 										
 										// Set the marker on the map
 										l_marker.setMap(myMap);
-									
+										
 										// Create new info window with the login and miles away
 										var l_InfoWindow = new google.maps.InfoWindow({
 											content: "<p>" + l_details + "</p><p>Distance from you: " +
@@ -221,20 +222,29 @@
 										l_marker.addListener('click', (function(l_marker, l_InfoWindow, l_lat, l_lon) {
 											return function()
 											{
-												
+												// Opens a window on click, and creates a new line
 												l_InfoWindow.open(myMap, this);
-												var l_line = new google.maps.Polyline({
+												l_line = new google.maps.Polyline({
 													path: [	{lat: l_lat, lng: l_lon},
 															{lat: myLat, lng: myLon} ],
 													strokeColor: '#FF0000',
 													strokeOpacity: 1.0,
 													strokeWeight: 2
 												});
-												l_line.setMap(myMap);
+												
+												l_line.setMap(myMap);	// Set the line on the map
+												
+												// When a window is closed, remove the line along with it
+												l_InfoWindow.addListener('closeclick', (function(l_line) {
+													return function()
+													{
+														l_line.setMap(null);
+													};
+												})(l_line));
 											};
 										})(l_marker, l_InfoWindow, l_lat, l_lon));
 										
-																				
+										
 									}
 								}
 							}
@@ -248,8 +258,6 @@
 					
 				}
 			}
-			
-			
 			
 		</script>
 		

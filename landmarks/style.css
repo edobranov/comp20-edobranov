@@ -1,18 +1,12 @@
 /*
 
 	Filename:	style.css
-	Purpose:	
+	Purpose:	Mostly styling for the map in index.html
 	Author:		EVGENI C. DOBRANOV
 	Date:		3/12/2016
 
 */
 
-/* Background image for the whole page (<body> tag)
-body {
-	background-image: url('images/background.jpg');
-} */
-
-/* Absolutely necessary for Google Maps version 3 */
 html {
 	height: 100%
 }
