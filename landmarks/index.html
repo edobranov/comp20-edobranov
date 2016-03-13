@@ -166,13 +166,12 @@
 								for (i = 0; i < data["landmarks"].length; i++)
 								{
 									// Store all the temporary landmark info
-									var l_lat = data["landmarks"][i]["geometry"][0];
-									var l_lon = data["landmarks"][i]["geometry"][1];
+									var l_lat = data["landmarks"][i]["geometry"]["coordinates"]["1"];
+									var l_lon = data["landmarks"][i]["geometry"]["coordinates"]["0"];
 									var l_details = data["landmarks"][i]["properties"]["Details"];
 									var l_name = data["landmarks"][i]["properties"]["Location_Name"];
-
-									// Calculate the miles away from you
 									
+									// Calculate the miles away from you
 									Number.prototype.toRad = function() {
 									   return this * Math.PI / 180;
 									}
@@ -188,16 +187,18 @@
 									var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 									var d = R * c; 
 									var l_distance = d * 0.621371;
-
+									
 									// If the landmark is under a mile away...
 									if (l_distance < 1)
 									{
+										
 										// Create the new coords for the landmark
 										var l_coords = new google.maps.LatLng(l_lat, l_lon);
-									
+										
+										
 										// Creates the marker with icon and title
 										var l_marker = new google.maps.Marker({
-											position: l_coords,
+											position: {lat: l_lat, lng: l_lon},
 											map: myMap,
 											animation: google.maps.Animation.DROP,
 											icon: "cage.png",
@@ -205,25 +206,35 @@
 										});
 										
 										// Set the marker on the map
-										tempMarker.setMap(myMap);
+										l_marker.setMap(myMap);
 									
 										// Create new info window with the login and miles away
-										var tempInfoWindow = new google.maps.InfoWindow({
-											content: "<h2>" + tempLog + "</h2>" +
-													 "<h4>Distance from you: " +
-													 Math.round(tempDistance * 10000) / 10000 +
-													 " miles </h4>"
+										var l_InfoWindow = new google.maps.InfoWindow({
+											content: "<p>" + l_details + "</p><p>Distance from you: " +
+													 Math.round(l_distance * 10000) / 10000 +
+													 " miles </p></h4>"
 										});
 										
 										// Add a listener using JS closure to avoid just a reference to
 										// the last entry in the array (i.e. - JS will now evaluate the
 										// reference at the time that the listener event is added)
-										tempMarker.addListener('click', (function(tempMarker, tempInfoWindow) {
+										l_marker.addListener('click', (function(l_marker, l_InfoWindow, l_lat, l_lon) {
 											return function()
 											{
-												tempInfoWindow.open(myMap, this);
+												
+												l_InfoWindow.open(myMap, this);
+												var l_line = new google.maps.Polyline({
+													path: [	{lat: l_lat, lng: l_lon},
+															{lat: myLat, lng: myLon} ],
+													strokeColor: '#FF0000',
+													strokeOpacity: 1.0,
+													strokeWeight: 2
+												});
+												l_line.setMap(myMap);
 											};
-										})(tempMarker, tempInfoWindow));
+										})(l_marker, l_InfoWindow, l_lat, l_lon));
+										
+																				
 									}
 								}
 							}
