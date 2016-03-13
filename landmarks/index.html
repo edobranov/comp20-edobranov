@@ -46,55 +46,199 @@
 						// * (2) We can now set up Google Maps in the HTML *
 						// *************************************************
 						
+						
+						// Creates the map object
 						var myMap = new google.maps.Map(document.getElementById('map'), {
-							zoom: 13
+							zoom: 16
 						});
 						
+						// Creates the current coordinates object and centers the map on them
 						var myCoords = new google.maps.LatLng(myLat, myLon);
 						myMap.setCenter(myCoords);
 						
+						// Creates the marker
 						var myMarker = new google.maps.Marker({
-						position: myCoords,
-						title: "BENJAMIN_SWEET"
+							position: myCoords,
+							map: myMap,
+							animation: google.maps.Animation.DROP,
+							icon: "patrick.png",
+							title: "BENJAMIN_SWEET"
+						});
+						
+						var myInfoWindow = new google.maps.InfoWindow({
+							content: "<h2>BENJAMIN_SWEET</h2>"
 						});
 						
 						myMarker.setMap(myMap);
+						
+						myMarker.addListener('click', function() {
+							myInfoWindow.open(myMap, myMarker);
+						});
+						
+						
+						// ****************************************************************
+						// * (3) Now we focus on send the request to the herokuapp server *
+						// ****************************************************************
+						
+						// Instantiate a new XMLHttpRequest object
+						var request = new XMLHttpRequest();
+						
+						// Store the url that will be accessed via POST and the parameters
+						var url = "https://defense-in-derpth.herokuapp.com/sendLocation";
+						var param = "login=BENJAMIN_SWEET&lat=" + myLat + "&lng=" + myLon;
+						
+						// Open the request via POST, access the URL, and do so asynchronously
+						request.open("POST", url, true);
+						
+						// Request header for further specificity
+						request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+						
+						// Whenever the request state changes, call this function
+						request.onreadystatechange = function()
+						{
+							// If the request is returned and done so succesfully...
+							if (request.readyState == 4 && request.status == 200)
+							{
+								data = JSON.parse(request.responseText); // Parse the JSON data
+								console.log(data);
+								
+								for (i = 0; i < data["people"].length; i++)
+								{
+									// Store all the temporary user info
+									var tempLat = data["people"][i]["lat"];
+									var tempLon = data["people"][i]["lng"];
+									var tempLog = data["people"][i]["login"];
+									var tempCoords = new google.maps.LatLng(tempLat, tempLon);
+									
+									// Creates the marker with icon and title
+									var tempMarker = new google.maps.Marker({
+										position: tempCoords,
+										map: myMap,
+										animation: google.maps.Animation.DROP,
+										icon: "spongebob.png",
+										title: tempLog
+									});
+									
+									// Set the marker on the map
+									tempMarker.setMap(myMap);
+									
+									// Calculate the miles away from you
+									
+									Number.prototype.toRad = function() {
+									   return this * Math.PI / 180;
+									}
+									
+									var R = 6371; // km 
+									var x1 = tempLat-myLat;
+									var dLat = x1.toRad();
+									var x2 = tempLon-myLon;
+									var dLon = x2.toRad();  
+									var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+													Math.cos(myLat.toRad()) * Math.cos(tempLat.toRad()) * 
+													Math.sin(dLon/2) * Math.sin(dLon/2);  
+									var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+									var d = R * c; 
+									var tempDistance = d * 0.621371;
+
+									console.log(tempLog);
+									console.log(tempDistance);
+									
+									// Create new info window with the login and miles away
+									var tempInfoWindow = new google.maps.InfoWindow({
+										content: "<h2>" + tempLog + "</h2>" +
+												 "<h4>Distance from you: " +
+												 Math.round(tempDistance * 10000) / 10000 +
+												 " miles </h4>"
+									});
+									
+									// Add a listener using JS closure to avoid just a reference to
+									// the last entry in the array (i.e. - JS will now evaluate the
+									// reference at the time that the listener event is added)
+									tempMarker.addListener('click', (function(tempMarker, tempInfoWindow) {
+										return function()
+										{
+											tempInfoWindow.open(myMap, this);
+										};
+									})(tempMarker, tempInfoWindow));
+									
+								}
+								
+								for (i = 0; i < data["landmarks"].length; i++)
+								{
+									// Store all the temporary landmark info
+									var l_lat = data["landmarks"][i]["geometry"][0];
+									var l_lon = data["landmarks"][i]["geometry"][1];
+									var l_details = data["landmarks"][i]["properties"]["Details"];
+									var l_name = data["landmarks"][i]["properties"]["Location_Name"];
+
+									// Calculate the miles away from you
+									
+									Number.prototype.toRad = function() {
+									   return this * Math.PI / 180;
+									}
+									
+									var R = 6371; // km 
+									var x1 = l_lat-myLat;
+									var dLat = x1.toRad();
+									var x2 = l_lon-myLon;
+									var dLon = x2.toRad();  
+									var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+													Math.cos(myLat.toRad()) * Math.cos(l_lat.toRad()) * 
+													Math.sin(dLon/2) * Math.sin(dLon/2);  
+									var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+									var d = R * c; 
+									var l_distance = d * 0.621371;
+
+									// If the landmark is under a mile away...
+									if (l_distance < 1)
+									{
+										// Create the new coords for the landmark
+										var l_coords = new google.maps.LatLng(l_lat, l_lon);
+									
+										// Creates the marker with icon and title
+										var l_marker = new google.maps.Marker({
+											position: l_coords,
+											map: myMap,
+											animation: google.maps.Animation.DROP,
+											icon: "cage.png",
+											title: l_name
+										});
+										
+										// Set the marker on the map
+										tempMarker.setMap(myMap);
+									
+										// Create new info window with the login and miles away
+										var tempInfoWindow = new google.maps.InfoWindow({
+											content: "<h2>" + tempLog + "</h2>" +
+													 "<h4>Distance from you: " +
+													 Math.round(tempDistance * 10000) / 10000 +
+													 " miles </h4>"
+										});
+										
+										// Add a listener using JS closure to avoid just a reference to
+										// the last entry in the array (i.e. - JS will now evaluate the
+										// reference at the time that the listener event is added)
+										tempMarker.addListener('click', (function(tempMarker, tempInfoWindow) {
+											return function()
+											{
+												tempInfoWindow.open(myMap, this);
+											};
+										})(tempMarker, tempInfoWindow));
+									}
+								}
+							}
+							
+						};
+						
+						// Now that everything's set up, we send the data along
+						request.send(param);
+						
 					});
 					
 				}
 			}
 			
-			// ****************************************************************
-			// * (3) Now we focus on send the request to the herokuapp server *
-			// ****************************************************************
 			
-			// Instantiate a new XMLHttpRequest object
-			var request = new XMLHttpRequest();
-			
-			// Store the url that will be accessed via POST and the parameters
-			var url = "https://defense-in-derpth.herokuapp.com/sendLocation";
-			var param = "login=BENJAMIN_SWEET&lat=" + myLat + "&lng=" + myLon;
-			
-			// Open the request via POST, access the URL, and do so asynchronously
-			request.open("POST", url, true);
-			
-			// Request header for further specificity
-			request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			
-			// Whenever the request state changes, call this function
-			request.onreadystatechange = function()
-			{
-				// If the request is returned and done so succesfully...
-				if (request.readyState == 4 && request.status == 200)
-				{
-					data = JSON.parse(request.responseText); // Parse the JSON data
-					console.log(data);
-				}
-				
-			};
-			
-			// Now that everything's set up, we send the data along
-			request.send(param);
 			
 		</script>
 		
