@@ -1,0 +1,25 @@
+/*
+
+	Filename:	style.css
+	Purpose:	
+	Author:		EVGENI C. DOBRANOV
+	Date:		3/12/2016
+
+*/
+
+/* Background image for the whole page (<body> tag)
+body {
+	background-image: url('images/background.jpg');
+} */
+
+/* Absolutely necessary for Google Maps version 3 */
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#map {
+	width: 100%;
+	height: 100%;
+}
