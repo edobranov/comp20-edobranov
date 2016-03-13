@@ -13,17 +13,24 @@
 
 	<head>
 		<meta charset="utf-8" />
-		<!--<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />-->
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<title>Landmarks</title>
-		<!--<link rel="stylesheet" href="style.css" type="text/css" />-->
-		<!--<script src="http://maps.google.com/maps/api/js?sensor=true"></script>-->
-		<!--<script src="https://defense-in-derpth.herokuapp.com/sendLocation"</script>-->
+		<link rel="stylesheet" href="style.css" type="text/css" />
+		<script src="https://maps.googleapis.com/maps/api/js"></script>
+	</head>
+
+	<body onload="getLocation()">
+	
+		<div id="map"></div>
 		
 		<script>
+					
+			// ***************************************************************
+			// * (1) First we focus on getting user's longitude and latitude *
+			// ***************************************************************
 			
-			// (1) First we focus on getting the user's longitude and latitude
-			var myLat = 0;
-			var myLon = 0;
+			myLat = 0;
+			myLon = 0;
 			function getLocation()	// This function is called as soon as the body loads
 			{
 				if (navigator.geolocation)	// If navigator is enabled in browser
@@ -34,11 +41,32 @@
 						myLon = position.coords.longitude;	// Store longitude
 						console.log(myLat);
 						console.log(myLon);
+						
+						// *************************************************
+						// * (2) We can now set up Google Maps in the HTML *
+						// *************************************************
+						
+						var myMap = new google.maps.Map(document.getElementById('map'), {
+							zoom: 13
+						});
+						
+						var myCoords = new google.maps.LatLng(myLat, myLon);
+						myMap.setCenter(myCoords);
+						
+						var myMarker = new google.maps.Marker({
+						position: myCoords,
+						title: "BENJAMIN_SWEET"
+						});
+						
+						myMarker.setMap(myMap);
 					});
+					
 				}
 			}
 			
-			// (2) Now we focus on send the request to the herokuapp server
+			// ****************************************************************
+			// * (3) Now we focus on send the request to the herokuapp server *
+			// ****************************************************************
 			
 			// Instantiate a new XMLHttpRequest object
 			var request = new XMLHttpRequest();
@@ -56,7 +84,7 @@
 			// Whenever the request state changes, call this function
 			request.onreadystatechange = function()
 			{
-				// If the request is returned and done so successfully...
+				// If the request is returned and done so succesfully...
 				if (request.readyState == 4 && request.status == 200)
 				{
 					data = JSON.parse(request.responseText); // Parse the JSON data
@@ -68,18 +96,7 @@
 			// Now that everything's set up, we send the data along
 			request.send(param);
 			
-			//var myMap = new google.maps.Map(document.getElementById("map"), {
-			//	center: {lat: myLat, lng: myLon},
-			//	zoom: 8
-			//});
-			
 		</script>
-	
-	</head>
-
-	<body onload="getLocation()">
-	
-		<div id="map"></div>
 		
 	</body>
 	
