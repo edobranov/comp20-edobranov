@@ -53,27 +53,6 @@
 						var myCoords = new google.maps.LatLng(myLat, myLon);
 						myMap.setCenter(myCoords);
 						
-						// Creates the initial marker of the user's location
-						var myMarker = new google.maps.Marker({
-							position: myCoords,
-							map: myMap,
-							animation: google.maps.Animation.DROP,
-							icon: "patrick.png",
-							title: "BENJAMIN_SWEET"
-						});
-						
-						// Render the info window for the marker with the title
-						var myInfoWindow = new google.maps.InfoWindow({
-							content: "<h2>BENJAMIN_SWEET</h2>"
-						});
-						
-						myMarker.setMap(myMap);		// Place the marker on the map
-						
-						// Simple event listener for the user's info window
-						myMarker.addListener('click', function() {
-							myInfoWindow.open(myMap, myMarker);
-						});
-						
 						// ****************************************************************
 						// * (3) Now we focus on send the request to the herokuapp server *
 						// ****************************************************************
@@ -163,6 +142,7 @@
 								// *****************************************************************
 								// * (5) Now we loop through the landmarks and add them to the map *
 								// *****************************************************************
+								x = 99999;	// For holding closest landmark
 								for (i = 0; i < data["landmarks"].length; i++)
 								{
 									// Store all the temporary landmark info
@@ -216,6 +196,15 @@
 													 " miles </p></h4>"
 										});
 										
+										if (l_distance < x)		// Hold the closest marker
+										{
+											x = l_distance;
+											least_lat = l_lat;
+											least_lon = l_lon;
+											least_marker = l_marker;
+											least_infowindow = l_InfoWindow;
+										}
+										
 										// Add a listener using JS closure to avoid just a reference to
 										// the last entry in the array (i.e. - JS will now evaluate the
 										// reference at the time that the listener event is added)
@@ -244,9 +233,52 @@
 											};
 										})(l_marker, l_InfoWindow, l_lat, l_lon));
 										
-										
 									}
 								}
+								
+								// Creates the initial marker of the user's location
+								var myMarker = new google.maps.Marker({
+									position: myCoords,
+									map: myMap,
+									animation: google.maps.Animation.DROP,
+									icon: "patrick.png",
+									title: "BENJAMIN_SWEET"
+								});
+								
+								// Render the info window for the marker with the title
+								var myInfoWindow = new google.maps.InfoWindow({
+									content: "<h2>BENJAMIN_SWEET</h2>" + 
+											 "<p>Closest historical landmark: " +
+											 Math.round(x * 10000) / 10000 + " miles away</p>"
+								});
+								
+								myMarker.setMap(myMap);		// Place the marker on the map
+								
+								// Simple event listener for the user's info window
+								myMarker.addListener('click', function() {
+									myInfoWindow.open(myMap, myMarker);
+									least_infowindow.open(myMap, least_marker);
+									
+									least_line = new google.maps.Polyline({
+										path: [	{lat: least_lat, lng: least_lon},
+												{lat: myLat, lng: myLon} ],
+										strokeColor: '#FF0000',
+										strokeOpacity: 1.0,
+										strokeWeight: 2
+									});
+												
+									least_line.setMap(myMap);	// Set the line on the map
+									
+									// When a window is closed, remove the line along with it
+									least_infowindow.addListener('closeclick', (function(least_line) {
+										return function()
+										{
+											least_line.setMap(null);
+										};
+									})(least_line));
+								});
+								
+								
 							}
 							
 						};
