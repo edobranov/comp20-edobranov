@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>Captain's Log</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script>
+		
+		$(document).ready(function()
+		{
+			// Push the local storage text to the HTML div
+			$('#log').html(localStorage.getItem('log'));
+		
+			// On keypress in the textbox, pass the value 'e'
+			$('#msg').keypress(function(e)
+			{
+				if (e.which == 13)	// If the value of the 'e' key is 13 (enter key)
+				{
+					// Prepend the current data in the textbox with the date
+					$('#log').prepend("<p>" + Date() + " - <b style='color:blue;'>" +
+									  this.value + "</b></p><hr>");
+									  
+					// Overwrite the local storage to include the new messages
+					localStorage.setItem('log', $('#log').html());
+					
+					// Clear the textbox for neatness
+					$('#msg').val('');
+				}
+			});
+		});
+		
+	</script>
+</head>
+
+<body>
+	<h1>Captain's Log</h1>
+	<h3>New entry: <input type="text" id="msg" name="msg" size="30" /></h3>
+	<div id="log"></div>
+</body>
+</html>
