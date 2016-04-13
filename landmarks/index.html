@@ -61,7 +61,7 @@
 						var request = new XMLHttpRequest();
 						
 						// Store the url that will be accessed via POST and the parameters
-						var url = "https://defense-in-derpth.herokuapp.com/sendLocation";
+						var url = "http://ancient-tor-58956.herokuapp.com/sendLocation";
 						var param = "login=BENJAMIN_SWEET&lat=" + myLat + "&lng=" + myLon;
 						
 						// Open the request via POST, access the URL, and do so asynchronously
@@ -104,17 +104,15 @@
 									// Calculate the miles away from the user
 									// Formula found at this URL:
 									// http://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
-									Number.prototype.toRad = function() {
-									   return this * Math.PI / 180;
-									}
+									
 									var R = 6371;
 									var x1 = tempLat-myLat;
-									var dLat = x1.toRad();
+									var dLat = x1 * Math.PI / 180;
 									var x2 = tempLon-myLon;
-									var dLon = x2.toRad();  
+									var dLon = x2 * Math.PI / 180;  
 									var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
-													Math.cos(myLat.toRad()) * Math.cos(tempLat.toRad()) * 
-													Math.sin(dLon/2) * Math.sin(dLon/2);  
+										Math.cos(myLat * Math.PI / 180) * Math.cos(tempLat * Math.PI / 180) * 
+										Math.sin(dLon/2) * Math.sin(dLon/2);  
 									var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 									var d = R * c; 
 									var tempDistance = d * 0.621371;
@@ -151,22 +149,17 @@
 									var l_details = data["landmarks"][i]["properties"]["Details"];
 									var l_name = data["landmarks"][i]["properties"]["Location_Name"];
 									
-									// Calculate the miles away from you
-									Number.prototype.toRad = function() {
-									   return this * Math.PI / 180;
-									}
-									
 									// Calculate the miles away from the user
 									// Formula found at this URL:
 									// http://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
 									var R = 6371;
 									var x1 = l_lat-myLat;
-									var dLat = x1.toRad();
+									var dLat = x1 * Math.PI / 180;
 									var x2 = l_lon-myLon;
-									var dLon = x2.toRad();  
+									var dLon = x2 * Math.PI / 180;  
 									var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
-													Math.cos(myLat.toRad()) * Math.cos(l_lat.toRad()) * 
-													Math.sin(dLon/2) * Math.sin(dLon/2);  
+										Math.cos(myLat * Math.PI / 180) * Math.cos(l_lat * Math.PI / 180) * 
+										Math.sin(dLon/2) * Math.sin(dLon/2);  
 									var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 									var d = R * c; 
 									var l_distance = d * 0.621371;
@@ -295,4 +288,4 @@
 		
 	</body>
 	
-</html>	
+</html>
