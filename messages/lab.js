@@ -36,7 +36,7 @@ function parse()
 							"<span id='small'> " +
 								data[i]["username"] +
 							"</span>" +
-						"</span" +
+						"</span>" +
 					"</p>";
 			}
 			
