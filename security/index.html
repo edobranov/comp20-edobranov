@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<!--
+
+	Filename:	index.html
+	Purpose:	Content for Assignment 4 (Security Assessment)
+	Author:		EVGENI C. DOBRANOV
+	Date:		4/26/2016
+
+-->
+
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title>Assignment 4</title>
+		<link rel="stylesheet" href="style.css" type="text/css" />
+	</head>
+
+	<body>
+
+		<h1>COMP20 Security &amp; Privacy Assessment</h1>
+                <p>By <a href='http://edobranov.github.io/'>Evgeni Dobranov</a> • 4/26/2016</p>
+
+		<hr><h2>Introduction</h2>
+                <p>This assessment thoroughly tests the security issues behind the
+		<a href="http://tuftsdev.github.io/WebProgramming/assignments/a3.html">Historic Landmarks (COMP20 Assignment 3)</a>
+		application developed by Joshua Port. This web application receives data from the user in the form of a login name,
+		and longitude and latitude coordinates. It displays an HTML landing page with recent logins, and can also return
+		JSON data of either the logins of a certain user, or nearby landmarks in North America. The JSON of the nearby landmarks
+		is incorported into <a href="http://tuftsdev.github.io/WebProgramming/assignments/a2.html">Assignment 2</a> in order
+		to display nearby landmarks using custom markers on Google Maps.</p>
+		<p>In order to exploit security issues, I will be manipulating and tampering with the input data in "clever" ways -
+		that is to say, in ways that one would normally hear about in typical XSS attacks.</p>
+		
+                <hr><h2>Methodology</h2>
+		<p>The metholodogy I used (in accordance to the assignment requirements) was to first do black-box testing and
+		then do white-box testing. Initially I used my own tools (namely a simple Python server, Curl, Postman, etc.) to
+		POST to the server using malicious credentials. Then I perused through the source code and looked at the way various
+		POST inputs were used as parameters for interaction with other components (like the MongoDB database), which allowed
+		for more involved security exploits.
+                
+                <hr><h2>Abstract of Findings</h2>
+		<p>All of the issues essentially fall under the category of using clever "hacker-like" input that a computer cannot
+		distinguish as benevolent, good-natured input and malicious code to run. This means that too much trust was placed
+		in what the user can input. For example, the user can input simple coding "tags" that the computer mindlessly
+		interprets as "print this to the screen". Of course, one can imagine various pictures and videos that would make
+		a lot of people very angry...</p>
+		
+                <hr><h2>Issues Found</h2>
+                <ol>
+                
+                        <li><b>HTML Code Injection</b></li>
+                        <ul>
+                                <li>Affects landing page (GET)</li>
+				<li>Severity: <div id="severity">Medium - High</div></li>
+				<li>I found this issue using the more fundamental theory behind HTML. I know that the login name
+				is displayed as plain text, so putting in HTML code for the username itself will render that HTML
+				code. The key to why this works is because the browser cannot know how to render things like tags
+				differently from simple characters. It simply interprets the output string as "HTML code", and will
+				render what there is to render as code. <br>
+				Things like malicious images and videos can easily be injected into the website as well, beyond annoying
+				colors and large, scary words. This can obviously cause a lot of issues with inappropriate content.
+				Luckily, I only get as malicious as bunnies.<br><br>
+				<img src="bunnies.jpg" alt="bunnies"><br>
+				The code I inputted was a simple <div id="codesmall">&ltimg src="..." alt="..."&gt</div> instead of inputting
+				a typical login, like a name. For this in particular, I used the Curl tool to POST to the Herokuapp server:
+				<div id="codesmall">curl --data "login=&lt;img src="http://cdn.shopify.com/s/files/1/0224/1915/files/bunny.jpg?22110" alt="bunnies"&gt;&amp;lat=71&amp;lng=41" http://dry-anchorage-34836.herokuapp.com/sendLocation</div></li>
+				<li>Fortunately, this issue in particular isn't too difficult to solve in a sense. You'd just have to
+				filter all non-alphanumeric characters out of the input, using a simple regex (regular expression)
+				like <div id="codesmall">[a-zA-Z0-9]</div></li>
+                        </ul>
+                        
+			<br>
+			
+                        <li><b>Cross-Site Scripting (XSS)</b></li>
+                        <ul>
+				<li>Affects landing page (GET)</li>
+				<li>Severity: <div id="severity">Medium - High</div></li>
+                                <li>This issue encompasses the idea of using the &ltscript&gt tag to dynamically tamper with a website.
+				Much like with code injection above, a script like the one below could be sent through POST: <br>
+				<br><div id="code">&ltscript&gt <br>&nbsp;&nbsp;&nbsp;&nbsp;while(1) {<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert("Mwahaha!"); <br>
+				&nbsp;&nbsp;&nbsp;&nbsp;}<br>&lt/script&gt</div><br>
+				<img src="alert.jpg" alt="alert"><br>
+				This code sample, for example, will cause the browser to produce indefinitely many alert messages
+				until the user stops them. It freezes up the whole website and causes it to become unusable. It also
+				prevents the remainder of the website from rendering, depending on where the script is executed.<br>
+				This could get particularly dangerous for reasons besides resource-hogging. One situation could be a script
+				that causes the background to rapidly change between bright colors, which could be a serious
+				problem for those with epilepsy.</li>
+				<li>Since XSS falls under code injection, the solution to this security issue would be the same as the
+				one prior to it. That is, including a regex (regular expression) to filter out all non-alphanumeric
+				characters from the user's input, like <div id="codesmall">[a-zA-Z0-9]</div></li>
+                        </ul>
+			
+			<br>
+			
+			<li><b>NoSQL (MongoDB) Query Injection</b></li>
+			<ul>
+				<li>Affects the <div id="codesmall">/checkins.json?login=</div> &nbsp;route (entering query string via the URL bar)</li>
+				<li>Severity: <div id="severity">High</div></li>
+				<li>This is a major, major security problem. First off, MongoDB is a NoSQL type of database, which is a
+				deviation from SQL databases in the sense that they are non-relational and more scalable. For my goal,
+				I'm only really concerned with the fact that they use different types of querying parameters. So, let's
+				say I wanted to retrieve all non-blank usernames - which is to say - essentially all of them. The vulnerability
+				arises from the fact that entries in a MongoDB collection are queried via the find() command. In this case,
+				the exact query is <div id="codesmall">collection.find( { login: login_name } )</div>, where login_name is
+				extracted from the URL bar via <div id="codesmall">var login_name = request.query.login;</div><br>
+				The only required part now is to figure out how to query the logins in such a way. According to this
+				<a href='http://blog.websecurify.com/2014/08/hacking-nodejs-and-mongodb.html'>blog post</a>, for the Node.js
+				framework (on which this project is built on), the query syntax <div id="codesmall">login[$ne]</div> is a way
+				to make a JavaScript object that looks like this:<br><br>
+				<div id="code">{<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;"login" : { "$ne" : "" }<br>
+				}</div><br>
+				This, when inputted into the find() command above, will query all login names not equal to an empty string,
+				which looks like this when used on the web application:<br><br>
+				<img src="login.jpg" alt="login">
+				Given that all the logins are already available on the default route, this might not be considered such a big flaw,
+				but if that route did not exist, then it would be a huge vulnerability... *cough*
+				<a href="https://www.washingtonpost.com/news/the-switch/wp/2014/01/10/the-target-hack-gets-worse-phone-numbers-addresses-of-up-to-70-million-customers-leaked/">
+				Target</a> *cough*
+				<li>Luckily, the solution for this is also relatively simplistic it seems. Thanks to a
+				<a href="https://github.com/vkarpov15/mongo-sanitize">good citizen</a>, all you'd have to do is run
+				<div id="codesmall">npm install mongo-sanitize</div> in your Node.js folder, add it to your dependencies in
+				your package.json file, and include <div id="codesmall">var sanitize = require('mongo-sanitize');</div>
+				at the top of your index.js file. From that point on, you'd just have to call <div id="codesmall">sanitize()</div>
+				with whatever string you'd like to rid of possibly query injection as the parameter.</li>
+				
+			</ul>
+			
+			<br>
+			
+			<li><b>Faulty Longitude and Latitude Parameter Storage</b></li>
+			<ul>
+				<li>Affects landing page (GET) and internal MongoDB database</li>
+				<li>Severity: <div id="severity">Low</div></li>
+				<li>This issue becomes evident when entering longitude and latitude coordinates that are not numbers,
+				like "cookie" or mixtures of numeric and non-numeric characters, like "1/0". While a valid JSON is returned
+				in the form of <div id="codesmall">{"error":"Error with find() in landmarks collection"}</div>, the
+				value is still stored in the MongoDB database and essentially represents junk data. It can become easy
+				to flood the database with this, essentially making it harder for someone who would want to use the
+				returned JSON for a different purpose.<br><br>
+				<img src="nan.jpg" alt="nan"><br></li>
+				<li>The primary fix behind this is changing the conditions for which a parameter is stored. As it remains,
+				a parameter is only rejected if it is null via the code snippet:<br><br>
+				<div id="codelong">if (login == null || lat == null || lng == null) {<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;response.send('{"error":"Whoops, something is wrong with your data!"}');<br>
+				}</div><br>
+				The code then proceeds to insert the data into the database anyway. Instead of checking just for null values
+				(which is not desireable since the coordinates {"cookie", "lettuce"} are indeed non-null), it'd be much better
+				to use the isNaN() operator. That is, changing the code above to the following would fix the issue:<br><br>
+				<div id="codelong">if (login == null || isNaN(lat) || isNaN(lng)) {<br>
+				&nbsp;&nbsp;&nbsp;&nbsp;response.send('{"error":"Whoops, something is wrong with your data!"}');<br>
+				}</div></li><br>
+				
+			</ul>
+                        
+                </ol>
+                
+                <hr><h2>Conclusion</h2>
+		As a whole, the security flaws and privacy vulnerabilities listed above are pretty serious. From code and query injection, to
+		XSS, the website can be compromised in a number of ways. For the future, the easiest way to deal with these issues is to
+		leave the system / web application open in only as many ways as is necessary. Additionally, it can be very beneficial to
+		just sit down and imagine what the user can input - the type of characters, links to pictures and other things, various
+		strings that you've already coded into your application, etc. As a solution, it's best to just restrict these things using
+		regular expressions and modules created exactly for this purpose. If I had to estimate, this fix would cost around $100
+		in addition to the tasks required to thoroughly test all vulnerability points.
+	</body>
+	
+</html>	
